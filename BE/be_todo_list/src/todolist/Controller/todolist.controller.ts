@@ -28,7 +28,7 @@ export class TodolistController {
   @ApiBody({ type: CreateTodoDTO })
   async createTodo(
     @Body() createTodoDTO: CreateTodoDTO,
-  ): Promise<TodoListEntity> {
+  ): Promise<TodoListEntity[]> {
     return await this.todoListService.createTodoList(createTodoDTO);
   }
 

@@ -1,12 +1,19 @@
 import axios from 'axios';
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { FaPlus } from 'react-icons/fa';
 
-function ModalBox() {
+interface Modal{
+  updateDate : ()=>void
+}
+
+function ModalBox({updateDate}: Modal) {
+
+  const closeM = useRef(null);
+
   const initialState = {
     title: '',
     description: '',
-    date: '',
+    date: new Date(),
   };
 
   const [state, setState] = useState(initialState);
@@ -31,9 +38,12 @@ function ModalBox() {
       ...state
     }
 
-    axios.post("http://localhost:8080/todolist/create",todoPayload)
+    axios.post("http://localhost:8080/todolist/createTodoItem",todoPayload)
     .then((res)=>{
-      console.log(res)
+      if(res.data){
+        updateDate(res.data)
+        closeM.current.click();
+      }
     })
     .catch((error)=>console.log(error))
   } 
@@ -53,6 +63,7 @@ function ModalBox() {
         <div className="modal-content flex flex-col gap-5 max-w-3xl">
           <label
             htmlFor="modal-2"
+            ref={closeM}
             className="btn btn-sm btn-circle btn-ghost absolute right-2 top-2"
           >
             ✕

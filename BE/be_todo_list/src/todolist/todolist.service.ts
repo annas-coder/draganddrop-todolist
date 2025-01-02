@@ -20,13 +20,15 @@ export class TodolistService {
     private readonly todoRepository: Repository<TodoListEntity>,
   ) {}
 
-  async createTodoList(createTodoDTO: CreateTodoDTO): Promise<TodoListEntity> {
+  async createTodoList(createTodoDTO: CreateTodoDTO): Promise<TodoListEntity[]> {
+    debugger
     const createTodoList = this.todoRepository.create({
       title: createTodoDTO.title,
       description: createTodoDTO.description,
       date: new Date(createTodoDTO.date),
     });
-    return await this.todoRepository.save(createTodoList);
+    await this.todoRepository.save(createTodoList);
+    return this.todoRepository.find();
   }
 
   async getAllTodoList(): Promise<TodoListEntity[]> {

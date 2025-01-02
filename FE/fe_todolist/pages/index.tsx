@@ -28,11 +28,12 @@ export default function Home() {
   })
   
   useEffect(() => {
-    updateWeekDates(weekStartDate);
+    updateWeekDates(new Date(format(weekStartDate,"P")));
   }, [weekStartDate]);
 
   useEffect(()=>{
     if(!dates.startDate && !dates.endDate) return
+    console.log(dates,"dates")
     getScheduleList()
   },[dates])
 
@@ -48,8 +49,8 @@ export default function Home() {
   const updatedScheduleList = async(id: string,rescheduleDate: string) =>{
     const formattedDate = new Date(rescheduleDate).toISOString();
 
-    await axios.put(  `http://localhost:8080/todolist/rescheduleCalendar/${Number(id)}`, {
-      date: formattedDate
+    await axios.put(`http://localhost:8080/todolist/rescheduleCalendar/${Number(id)}`, {
+      date: new Date(format(formattedDate,'P'))
     })
     .then((res: any)=>{
       const result = res.data
@@ -62,17 +63,16 @@ export default function Home() {
   const updateWeekDates = useCallback((startDate: Date) => {
     const { startDate: weekstartDate, endDate: weekEndDate } = calculateWeekDates(startDate);
     const dates: Date[] = [];
-    const currentDate = new Date(weekstartDate);
+    const currentDate = new Date(format(weekstartDate,"P"));
 
-    while (currentDate <= weekEndDate) {
+    while (currentDate < weekEndDate) {
       dates.push(new Date(currentDate));
       currentDate.setDate(currentDate.getDate() + 1);
     }
-
     setWeekDates(dates);
     setDates({
-      startDate:weekstartDate,
-      endDate:weekEndDate
+      startDate: new Date(format(weekstartDate,"P")),
+      endDate: new Date(format(weekEndDate,"P"))
     })
   },[]);
 
@@ -110,19 +110,16 @@ export default function Home() {
 
     if (!draggedElementId || !dateInput) return; 
     updatedScheduleList(draggedElementId,dateInput)
-    // const formattedDate = format(new Date(dateInput), "yyyy-MM-dd");
-
-    // const updatedData = data.map((task) =>
-    //   task.id === Number(draggedElementId)
-    //     ? { ...task, date: formattedDate }
-    //     : task
-    // );
+  
     e.currentTarget.classList.remove("add-scale")
-    // setData(updatedData);
   };
 
   const onDragEndHandler = (e: DragEvent<HTMLDivElement>) =>{
     e.currentTarget.classList.remove("opacity-50")
+  };
+
+  const updateDate = (getCreatedSchedule:Task[]) =>{
+    setData(getCreatedSchedule)
   }
 
   return (
@@ -135,7 +132,7 @@ export default function Home() {
         <IoIosArrowDropleft size={50} onClick={() => handleWeekChange(-3)} className="hover:text-slate-500"/>
         <IoIosArrowDropright size={50} onClick={() => handleWeekChange(+3)} className="hover:text-slate-500" />
         <span className="px-4">
-          <ModalBox/>
+          <ModalBox updateDate={updateDate}/>
         </span>
       </div>
 
